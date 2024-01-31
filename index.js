@@ -7,6 +7,14 @@ if (index < 0 || index >= buckets.length) {
   }
 
 */
+function doubleArraySize(arr) {
+    const newSize = arr.length * 2;
+    const newArray = new Array(newSize);
+    for (let i = 0; i < arr.length; i++) {
+        newArray[i] = arr[i];
+    }
+    return newArray;
+}
 
 class HashMap {
 
@@ -32,24 +40,40 @@ class HashMap {
 
     set(key, value) {
         let index = this.hash(key);
-        console.log(index)
+        console.log('the index for ' + key + 'is ' + index);
         if (index < 0 || index >= this.buckets.length) {
             throw new Error("Trying to access index out of bound");
             }
         
-        if (this.buckets[index] === undefined || this.buckets[index].key === key) { // There's nothing occupying this space
-            this.buckets[index] = {key: key, value: value};
+        if (this.buckets[index] === undefined) { // There's nothing occupying this space or the first element is a duplicate
+            this.buckets[index] = {key: key, value: value, nextItem: null};
+            this.numItems++;
+        } else if (this.buckets[index].key === key) { // The first element has the matching key
+            this.buckets[index] = {key: key, value: value, nextItem: null};
+        } else {
+            let currItem = this.buckets[index];
+
+            while(true) {
+                if (currItem.nextItem === null) {
+                    currItem.nextItem = {key: key, value: value, nextItem: null};
+                    this.numItems++;
+                    break;
+                }
+
+                if (currItem.key === key) {
+                    currItem.value = value;
+                    break;
+                }
+
+                currItem = currItem.nextItem;
+            }
         }
 
-        else if (true) { // Update the condition to check if we have a collision
-
+        if (this.numItems / this.size >= this.loadFactor) {
+            this.buckets = doubleArraySize(this.buckets);
+            this.size = this.buckets.length;
         }
-
-        // Check if I should resize the hashMap based on the load factor
     }
 }
 
 let newHashMap = new HashMap();
-newHashMap.set('Ke12y', 'VALUEE')
-newHashMap.set('Ke12y', 'new  Value')
-console.log(newHashMap);
