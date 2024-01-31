@@ -19,10 +19,10 @@ function doubleArraySize(arr) {
 class HashMap {
 
     constructor(size = 16) {
-        this.buckets = Array(16);
+        this.buckets = Array(size);
         this.size = size;
         this.numItems = 0;
-        this.loadFactor = 0.80;
+        this.loadFactor = 0.8;
     }
 
     // A simple hash function using chars
@@ -38,6 +38,7 @@ class HashMap {
         return hashCode;
     }
 
+    // Collisions handled using a linked list method, each item in the hashMap has a nextItem attribute used to house items with different keys that hash to the same position
     set(key, value) {
         let index = this.hash(key);
         console.log('the index for ' + key + 'is ' + index);
@@ -72,8 +73,137 @@ class HashMap {
         if (this.numItems / this.size >= this.loadFactor) {
             this.buckets = doubleArraySize(this.buckets);
             this.size = this.buckets.length;
+            // this.rehash();
         }
+    }
+
+    // Retrieves the value associated with the key, null if not found
+    get(key) {
+        let index = this.hash(key);
+        console.log('trying to find' + index);
+        let currItem = this.buckets[index];
+
+        if (currItem === undefined)
+            return null;
+        while (currItem !== null) {
+            if (currItem.key === key) 
+                return currItem.value;
+            currItem = currItem.nextItem;
+        }
+
+        return null;
+    }
+
+    rehash() { // rehashes all the current items in buckets, required since when we resize the modulus changes
+        // TODO
+    }
+
+    // Attempts to remove the item with the given key, true is successful, false otherwise
+    remove(key) {
+        let index = this.hash(key);
+        console.log('trying to remove the item with this ' + index);
+        let currItem = this.buckets[index];
+
+        if (currItem.key === key) { // the item to remove is in the index position
+            this.numItems--;
+            this.buckets[index] = currItem.nextItem === null ? undefined : currItem.nextItem;
+            return true;
+        }
+
+        // The item at the hash index isn't the one we're looking for, traverse the linked list
+        while (currItem.nextItem !== null) {
+            if (currItem.nextItem.key === key) {
+                this.numItems--;
+                currItem.nextItem = currItem.nextItem.nextItem; // Basically just skip the pointer
+                return true;
+            }    
+            currItem = currItem.nextItem;
+        }
+
+        return false; // Couldn't find the item to remove
+    }
+
+    // Returns the number of STORED KEYS in the hashMap
+    length() {
+        return this.numItems;
+    }
+
+    // Removes all entries in the hashMap, doesn't bother to resize down haha
+    clear() {
+        this.buckets = Array(this.size);
+        this.numItems = 0;
+    }
+
+    // Returns an array of all the keys in the hashMap
+    keys() {
+        return this.getKeysHelper(this.buckets);
+    }
+
+    // Helper to return all keys in buckets
+    getKeysHelper(buckets) {
+        const result = [];
+
+        for (let i = 0; i < buckets.length; i++) {
+            let currItem = buckets[i];
+            while (currItem !== null && currItem !== undefined) {
+                result.push(currItem.key);
+                currItem = currItem.nextItem;
+            }
+        }
+
+        return result;
+    }
+
+    values() {
+        return this.getValuesHelper(this.buckets);
+    }
+
+    // Helper to return all values in buckets
+    getValuesHelper(buckets) {
+        const result = [];
+
+        for (let i = 0; i < buckets.length; i++) {
+            let currItem = buckets[i];
+            while (currItem !== null && currItem !== undefined) {
+                result.push(currItem.value);
+                currItem = currItem.nextItem;
+            }
+        }
+
+        return result;
+    }
+
+    // Returns an array containing each key value pair, i.e. [[firstKey, firstValue], [secondKey, secondValue]]
+    entries() {
+        let keys = this.keys(this.buckets)
+        let values = this.values(this.buckets);
+        let result = [];
+
+        // Assuming the |keys| === |values|
+        for (let i = 0; i < keys.length; i++) {
+            let pair = [keys[i], values[i]];
+            result.push(pair);
+        }
+
+        return result;
     }
 }
 
-let newHashMap = new HashMap();
+let newHashMap = new HashMap(64);
+
+console.log(newHashMap);
+
+newHashMap.set('key 4', 'value 4');
+newHashMap.set('key 5', 'value 5');
+newHashMap.set('key 6', 'value 6');
+newHashMap.set('key 7', 'value 7');
+newHashMap.set('key 1', 'value 1');
+newHashMap.set('key 2', 'value 2');
+newHashMap.set('key 3', 'value 3');
+
+console.log(newHashMap.keys());
+console.log(newHashMap.values());
+console.log(newHashMap.entries());
+
+
+
