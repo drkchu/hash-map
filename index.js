@@ -73,7 +73,8 @@ class HashMap {
         if (this.numItems / this.size >= this.loadFactor) {
             this.buckets = doubleArraySize(this.buckets);
             this.size = this.buckets.length;
-            // this.rehash();
+            console.log("I just doubled the size!");
+            this.rehash();
         }
     }
 
@@ -95,7 +96,13 @@ class HashMap {
     }
 
     rehash() { // rehashes all the current items in buckets, required since when we resize the modulus changes
-        // TODO
+        let totalEntries = this.entries(this.buckets);
+        this.clear();
+
+        for (let i = 0; i < totalEntries.length; i++) {
+            let [currKey, currValue] = totalEntries[i];
+            this.set(currKey, currValue);
+        }
     }
 
     // Attempts to remove the item with the given key, true is successful, false otherwise
@@ -189,17 +196,9 @@ class HashMap {
     }
 }
 
-let newHashMap = new HashMap(64);
+let newHashMap = new HashMap(4);
 
 console.log(newHashMap);
-
-newHashMap.set('key 4', 'value 4');
-newHashMap.set('key 5', 'value 5');
-newHashMap.set('key 6', 'value 6');
-newHashMap.set('key 7', 'value 7');
-newHashMap.set('key 1', 'value 1');
-newHashMap.set('key 2', 'value 2');
-newHashMap.set('key 3', 'value 3');
 
 console.log(newHashMap.keys());
 console.log(newHashMap.values());
