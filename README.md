@@ -1,2 +1,2 @@
-# hash-map
-An implementation of a HashMap in JavaScript with set, get, and has methods
+# HashMap Data Structure
+Make a note of the computation complexity
